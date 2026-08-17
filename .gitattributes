@@ -1,0 +1,25 @@
+# Normalize all text files to LF in the repository, regardless of each
+# contributor's local core.autocrlf setting. This is what was causing
+# advertising.csv / iris.csv to show as "modified" on every checkout with
+# no actual content change (pure CRLF vs LF churn).
+* text=auto eol=lf
+
+# Explicit text types
+*.py text eol=lf
+*.js text eol=lf
+*.md text eol=lf
+*.csv text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.gitattributes text eol=lf
+*.gitignore text eol=lf
+
+# Binary files -- never touched by line-ending normalization
+*.docx binary
+*.pdf binary
+*.xlsx binary
+*.png binary
+*.jpg binary
+*.exe binary
+*.zip binary
