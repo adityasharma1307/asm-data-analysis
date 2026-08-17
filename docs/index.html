@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Applied Statistical Methods -- Assignments Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy:#111827; --slate:#374151; --muted:#6b7280; --line:#e5e7eb;
+    --blue:#2563eb; --green:#16a34a; --amber:#d97706; --purple:#7c3aed;
+    --bg:#f9fafb; --card:#ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--navy);
+  }
+  header { padding: 32px 24px 16px; max-width: 1200px; margin: 0 auto; }
+  header h1 { margin: 0 0 4px; font-size: 25px; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  header .badges { margin-top: 10px; }
+  header .badges span {
+    display:inline-block; font-size:12px; padding:3px 10px; border-radius:999px;
+    background:#eef2ff; color:#4338ca; margin-right:8px;
+  }
+  main { max-width: 1200px; margin: 0 auto; padding: 8px 24px 48px; }
+  .kpis { display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap:16px; margin: 16px 0 32px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; }
+  .kpi .label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .kpi .value { font-size:28px; font-weight:700; margin-top:4px; }
+  .kpi.blue .value { color: var(--blue); }
+  .kpi.green .value { color: var(--green); }
+  .kpi.amber .value { color: var(--amber); }
+  .kpi.purple .value { color: var(--purple); }
+  section.part { margin-bottom: 40px; }
+  section.part > h2 {
+    font-size: 19px; border-bottom: 2px solid var(--line); padding-bottom: 8px; margin-bottom: 16px;
+  }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; }
+  .card h3 { font-size:14px; margin:0 0 12px; color:var(--slate); }
+  .card canvas { max-height: 300px; }
+  .full { grid-column: 1 / -1; }
+  table { width:100%; border-collapse: collapse; font-size:13px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
+  th { background:#f3f4f6; color:var(--slate); font-weight:600; }
+  tr:hover td { background:#fafafa; }
+  .pill { padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; }
+  .pill.yes { background:#dcfce7; color:#166534; }
+  .pill.no { background:#fee2e2; color:#991b1b; }
+  footer { text-align:center; color:var(--muted); font-size:12px; padding: 20px 0 40px; }
+  footer a { color: var(--blue); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Applied Statistical Methods -- Assignments Dashboard</h1>
+  <p>MATH F432, BITS Pilani Dubai &middot; Interval estimation, hypothesis testing, regression, ANOVA &amp; classification</p>
+  <div class="badges">
+    <span>python</span><span>scipy</span><span>statsmodels</span><span>scikit-learn</span><span>hypothesis testing</span>
+  </div>
+</header>
+<main>
+  <div class="kpis" id="kpis"></div>
+
+  <section class="part">
+    <h2>Assignment 1 &mdash; BMI One-Sample t-Test</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Sample mean vs. hypothesized national average (95% CI: 29.61&ndash;31.33)</h3>
+        <canvas id="bmiChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Full results</h3>
+        <table id="bmiTable"><tbody></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="part">
+    <h2>Assignment 2, Part A &mdash; Multiple Linear Regression (Sales ~ TV + Radio + Newspaper)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Regression coefficients (green = significant at &alpha;=0.05)</h3>
+        <canvas id="regChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Coefficients</h3>
+        <table id="regTable"><thead><tr><th>Predictor</th><th>Coef.</th><th>SE</th><th>t</th><th>p</th><th>95% CI</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="card full">
+        <h3>Model fit &amp; diagnostics</h3>
+        <table id="regDiagTable"><tbody></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="part">
+    <h2>Assignment 2, Part B &mdash; One-Way ANOVA &amp; LDA Classification (Iris)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Mean petal length by species</h3>
+        <canvas id="anovaChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>LDA per-species F1-score (test accuracy 97.8%)</h3>
+        <canvas id="ldaChart"></canvas>
+      </div>
+      <div class="card full">
+        <h3>ANOVA &amp; robustness checks</h3>
+        <table id="anovaTable"><thead><tr><th>Test</th><th>Statistic</th><th>p-value</th><th>Conclusion</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="card full">
+        <h3>Tukey HSD post-hoc (pairwise comparisons)</h3>
+        <table id="tukeyTable"><thead><tr><th>Group 1</th><th>Group 2</th><th>Mean diff.</th><th>p (adj.)</th><th>Reject H0?</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  Generated by <code>build_web_dashboard.py</code> from this repo's own analysis scripts and reports.
+</footer>
+
+<script>
+const DATA = {"kpis": {"bmi_t": 4.503, "bmi_p": "< 0.001", "reg_r2": 0.903, "anova_eta2": 0.941, "lda_acc": 97.8}, "bmi": {"labels": ["Sample Mean", "H0 (National Avg.)"], "values": [30.47, 28.5], "ci": [29.61, 31.33]}, "regression": {"labels": ["Intercept", "TV", "Radio", "Newspaper"], "coef": [4.6251, 0.0544, 0.107, 0.0003], "significant": [true, true, true, false]}, "anova": {"labels": ["setosa", "versicolor", "virginica"], "means": [1.464, 4.26, 5.552], "std": [0.174, 0.47, 0.552]}, "lda": {"labels": ["setosa", "versicolor", "virginica"], "f1": [1.0, 0.97, 0.97], "confusion": [[15, 0, 0], [0, 15, 0], [0, 1, 14]]}, "bmi_table": [["Sample size (n)", "209"], ["Sample mean BMI", "30.47"], ["Sample std. dev.", "6.33"], ["Hypothesized mean (H0)", "28.50"], ["t-statistic", "4.503"], ["Critical value (\u00b1, \u03b1=0.05)", "1.971"], ["95% CI", "(29.61, 31.33)"], ["Decision", "Reject H0"], ["Shapiro-Wilk p-value", "5.24e-06"], ["Cohen's d", "0.311"], ["Wilcoxon signed-rank p-value", "3.60e-04"], ["Bootstrap 95% CI", "(29.63, 31.33)"]], "regression_table": [["Intercept", "4.6251", "0.308", "15.041", "< 0.001", "(4.019, 5.232)"], ["TV", "0.0544", "0.001", "39.592", "< 0.001", "(0.052, 0.057)"], ["Radio", "0.1070", "0.008", "12.604", "< 0.001", "(0.090, 0.124)"], ["Newspaper", "0.0003", "0.006", "0.058", "0.954", "(-0.011, 0.012)"]], "regression_diag": [["R-squared / Adj. R-squared", "0.903 / 0.901"], ["F-statistic (3, 196)", "605.4  (p = 8.13e-99)"], ["VIF: TV / Radio / Newspaper", "2.49 / 3.29 / 3.06"], ["Shapiro-Wilk on residuals (p)", "0.0016"], ["Breusch-Pagan homoscedasticity (p)", "0.2638"]], "anova_table": [["Classical one-way ANOVA", "F(2,147) = 1179.03", "3.05e-91", "Reject H0"], ["Welch's ANOVA (unequal var.)", "F(2,78.05) = 1826.58", "2.85e-66", "Reject H0"], ["Kruskal-Wallis (non-parametric)", "H = 130.41", "4.80e-29", "Reject H0"], ["Levene's test (equal variances)", "stat = 19.72", "2.59e-08", "Variances differ"]], "tukey_table": [["setosa", "versicolor", "2.796", "< 0.001", "Yes"], ["setosa", "virginica", "4.088", "< 0.001", "Yes"], ["versicolor", "virginica", "1.292", "< 0.001", "Yes"]]};
+
+function renderKPIs() {
+  const el = document.getElementById('kpis');
+  const k = DATA.kpis;
+  const items = [
+    { label: 'Asm1: BMI t-statistic', value: `t = ${k.bmi_t}`, cls: 'blue' },
+    { label: 'Asm1: p-value', value: k.bmi_p, cls: 'blue' },
+    { label: 'Asm2A: Regression R²', value: k.reg_r2.toFixed(3), cls: 'green' },
+    { label: 'Asm2B: ANOVA effect size (η²)', value: k.anova_eta2.toFixed(3), cls: 'amber' },
+    { label: 'Asm2B: LDA test accuracy', value: k.lda_acc.toFixed(1) + '%', cls: 'purple' },
+  ];
+  el.innerHTML = items.map(i => `
+    <div class="kpi ${i.cls}">
+      <div class="label">${i.label}</div>
+      <div class="value">${i.value}</div>
+    </div>`).join('');
+}
+
+function fillTable(id, rows) {
+  const tbody = document.querySelector(`#${id} tbody`);
+  tbody.innerHTML = rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
+}
+
+function renderCharts() {
+  new Chart(document.getElementById('bmiChart'), {
+    type: 'bar',
+    data: {
+      labels: DATA.bmi.labels,
+      datasets: [{ data: DATA.bmi.values, backgroundColor: ['#2563eb', '#9ca3af'] }]
+    },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{title:{display:true,text:'BMI (kg/m²)'}}} }
+  });
+
+  new Chart(document.getElementById('regChart'), {
+    type: 'bar',
+    data: {
+      labels: DATA.regression.labels,
+      datasets: [{
+        data: DATA.regression.coef,
+        backgroundColor: DATA.regression.significant.map(s => s ? '#16a34a' : '#d1d5db'),
+      }]
+    },
+    options: { indexAxis:'y', responsive:true, plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'Coefficient'}}} }
+  });
+
+  new Chart(document.getElementById('anovaChart'), {
+    type: 'bar',
+    data: {
+      labels: DATA.anova.labels,
+      datasets: [{ label: 'Mean petal length (cm)', data: DATA.anova.means, backgroundColor: '#d97706' }]
+    },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{title:{display:true,text:'Petal length (cm)'}}} }
+  });
+
+  new Chart(document.getElementById('ldaChart'), {
+    type: 'bar',
+    data: {
+      labels: DATA.lda.labels,
+      datasets: [{ label: 'F1-score', data: DATA.lda.f1, backgroundColor: '#7c3aed' }]
+    },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{min:0,max:1,title:{display:true,text:'F1-score'}}} }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderKPIs();
+  renderCharts();
+  fillTable('bmiTable', DATA.bmi_table);
+  fillTable('regTable', DATA.regression_table);
+  fillTable('regDiagTable', DATA.regression_diag);
+  fillTable('anovaTable', DATA.anova_table);
+  fillTable('tukeyTable', DATA.tukey_table.map(r => {
+    const last = r[r.length-1];
+    const pill = `<span class="pill ${last==='Yes'?'yes':'no'}">${last}</span>`;
+    return [...r.slice(0,-1), pill];
+  }));
+});
+</script>
+</body>
+</html>

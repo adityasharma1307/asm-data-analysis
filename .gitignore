@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Node (only used to build the Assignment 2 .docx report)
+node_modules/
+
+# SPSS installer (905MB, far over GitHub's 100MB file limit, and a
+# licensed installer that shouldn't be redistributed anyway)
+Asm2/SPSSStatistics.exe
+
+# Duplicate/raw iris archives -- iris.csv and Asm2/iris/ are the ones
+# actually used by the scripts
+Asm2/iris.zip
+"Asm2/iris (1).zip"
+
+# LibreOffice lock files from local recalculation
+.~lock.*#
